@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter By Tanuvis</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #111;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Painel de Controle Superior */
+        #controls {
+            background-color: #222;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid #333;
+            z-index: 10;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button#btnPlay {
+            background-color: #28a745;
+        }
+
+        button#btnPlay.playing {
+            background-color: #dc3545;
+        }
+
+        input[type="range"] {
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 40px;
+            background: #333;
+            color: white;
+            border: 1px solid #444;
+            padding: 8px;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        /* Área do Teleprompter */
+        #teleprompter-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Guia de leitura central (Seta/Linha) */
+        #reading-guide {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%);
+            border-top: 2px dashed rgba(255, 255, 0, 0.4);
+            border-bottom: 2px dashed rgba(255, 255, 0, 0.4);
+            height: 80px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #reading-guide::before {
+            content: "►";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: yellow;
+            font-size: 24px;
+        }
+
+        /* Texto em rolagem */
+        #prompter-text {
+            position: absolute;
+            top: 100%; /* Começa embaixo */
+            left: 0;
+            width: 100%;
+            padding: 0 50px;
+            text-align: center;
+            font-size: 50px;
+            font-weight: bold;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            transform-origin: center;
+            transition: transform 0.1s linear;
+        }
+
+        /* Modo Espelhado (Flip Horizontal) */
+        .mirrored {
+            transform: scaleX(-1);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <textarea id="txtInput" placeholder="Cole ou digite seu roteiro aqui para começar..."></textarea>
+        
+        <div class="control-group">
+            <button id="btnPlay">INICIAR</button>
+            <button id="btnReset">REINICIAR</button>
+        </div>
+
+        <div class="control-group">
+            <label for="rngSpeed">Velocidade:</label>
+            <input type="range" id="rngSpeed" min="1" max="10" value="3">
+        </div>
+
+        <div class="control-group">
+            <label for="rngSize">Tamanho da Letra:</label>
+            <input type="range" id="rngSize" min="30" max="90" value="50">
+        </div>
+
+        <div class="control-group">
+            <button id="btnMirror">Espelhar (Modo TV)</button>
+        </div>
+    </div>
+
+    <div id="teleprompter-container">
+        <div id="reading-guide"></div>
+        <div id="prompter-text">Cole seu texto lá em cima e clique em INICIAR para testar a rolagem do seu novo Teleprompter!</div>
+    </div>
+
+    <script>
+        const txtInput = document.getElementById('txtInput');
+        const prompterText = document.getElementById('prompter-text');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnReset = document.getElementById('btnReset');
+        const btnMirror = document.getElementById('btnMirror');
+        const rngSpeed = document.getElementById('rngSpeed');
+        const rngSize = document.getElementById('rngSize');
+        const container = document.getElementById('teleprompter-container');
+
+        let animationFrameId;
+        let isPlaying = false;
+        let currentScrollY = 0;
+        let isMirrored = false;
+
+        // Atualiza o texto em tempo real conforme digita/cola
+        txtInput.addEventListener('input', () => {
+            if (txtInput.value.trim() !== "") {
+                prompterText.textContent = txtInput.value;
+            }
+        });
+
+        // Altera o tamanho da fonte
+        rngSize.addEventListener('input', () => {
+            prompterText.style.fontSize = `${rngSize.value}px`;
+        });
+
+        // Função de animação da rolagem
+        function scrollText() {
+            if (!isPlaying) return;
+
+            // Calcula a velocidade com base no slider
+            const speed = parseFloat(rngSpeed.value) * 0.5;
+            currentScrollY -= speed;
+
+            // Se o texto passar completamente da tela, reinicia
+            if (currentScrollY < -prompterText.offsetHeight) {
+                resetPrompter();
+                return;
+            }
+
+            renderPosition();
+            animationFrameId = requestAnimationFrame(scrollText);
+        }
+
+        function renderPosition() {
+            // Mantém o flip horizontal se o modo espelho estiver ativo
+            const mirrorScale = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
+            prompterText.style.transform = `translateY(${currentScrollY}px) ${mirrorScale}`;
+        }
+
+        // Play / Pause
+        btnPlay.addEventListener('click', () => {
+            if (isPlaying) {
+                // Pausar
+                isPlaying = false;
+                cancelAnimationFrame(animationFrameId);
+                btnPlay.textContent = "CONTINUAR";
+                btnPlay.classList.remove('playing');
+            } else {
+                // Iniciar
+                if (currentScrollY === 0) {
+                    // Posiciona o texto inicialmente no centro/fim do container
+                    currentScrollY = container.offsetHeight / 2;
+                }
+                isPlaying = true;
+                btnPlay.textContent = "PAUSAR";
+                btnPlay.classList.add('playing');
+                scrollText();
+            }
+        });
+
+        // Reiniciar
+        function resetPrompter() {
+            isPlaying = false;
+            cancelAnimationFrame(animationFrameId);
+            currentScrollY = container.offsetHeight / 2;
+            btnPlay.textContent = "INICIAR";
+            btnPlay.classList.remove('playing');
+            renderPosition();
+        }
+        btnReset.addEventListener('click', resetPrompter);
+
+        // Espelhar Texto (Inverter para usar com vidro/reflexo)
+        btnMirror.addEventListener('click', () => {
+            isMirrored = !isMirrored;
+            btnMirror.style.background = isMirrored ? '#ffc107' : '#007bff';
+            btnMirror.style.color = isMirrored ? '#000' : '#fff';
+            renderPosition();
+        });
+
+        // Inicializa a posição do texto demonstrativo
+        window.onload = () => {
+            currentScrollY = container.offsetHeight / 2;
+            renderPosition();
+        };
+    </script>
+</body>
+</html>
