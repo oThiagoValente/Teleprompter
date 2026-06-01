@@ -21,7 +21,6 @@
             overflow: hidden;
         }
 
-        /* Painel de Controle Superior */
         #controls {
             background-color: #222;
             padding: 15px;
@@ -85,7 +84,6 @@
             resize: none;
         }
 
-        /* Área do Teleprompter */
         #teleprompter-container {
             flex: 1;
             position: relative;
@@ -95,7 +93,6 @@
             margin: 0 auto;
         }
 
-        /* Guia de leitura central (Seta/Linha) */
         #reading-guide {
             position: absolute;
             top: 50%;
@@ -119,10 +116,9 @@
             font-size: 24px;
         }
 
-        /* Texto em rolagem */
         #prompter-text {
             position: absolute;
-            top: 100%; /* Começa embaixo */
+            top: 100%;
             left: 0;
             width: 100%;
             padding: 0 50px;
@@ -135,7 +131,6 @@
             transition: transform 0.1s linear;
         }
 
-        /* Modo Espelhado (Flip Horizontal) */
         .mirrored {
             transform: scaleX(-1);
         }
@@ -186,27 +181,22 @@
         let currentScrollY = 0;
         let isMirrored = false;
 
-        // Atualiza o texto em tempo real conforme digita/cola
         txtInput.addEventListener('input', () => {
             if (txtInput.value.trim() !== "") {
                 prompterText.textContent = txtInput.value;
             }
         });
 
-        // Altera o tamanho da fonte
         rngSize.addEventListener('input', () => {
             prompterText.style.fontSize = `${rngSize.value}px`;
         });
 
-        // Função de animação da rolagem
         function scrollText() {
             if (!isPlaying) return;
 
-            // Multiplicador reduzido para 0.2 para tornar o movimento bem mais suave e lento
             const speed = parseFloat(rngSpeed.value) * 0.2;
             currentScrollY -= speed;
 
-            // Se o texto passar completamente da tela, reinicia
             if (currentScrollY < -prompterText.offsetHeight) {
                 resetPrompter();
                 return;
@@ -217,23 +207,18 @@
         }
 
         function renderPosition() {
-            // Mantém o flip horizontal se o modo espelho estiver ativo
             const mirrorScale = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
             prompterText.style.transform = `translateY(${currentScrollY}px) ${mirrorScale}`;
         }
 
-        // Play / Pause
         btnPlay.addEventListener('click', () => {
             if (isPlaying) {
-                // Pausar
                 isPlaying = false;
                 cancelAnimationFrame(animationFrameId);
                 btnPlay.textContent = "CONTINUAR";
                 btnPlay.classList.remove('playing');
             } else {
-                // Iniciar
                 if (currentScrollY === 0) {
-                    // Posiciona o texto inicialmente no centro/fim do container
                     currentScrollY = container.offsetHeight / 2;
                 }
                 isPlaying = true;
@@ -243,7 +228,6 @@
             }
         });
 
-        // Reiniciar
         function resetPrompter() {
             isPlaying = false;
             cancelAnimationFrame(animationFrameId);
@@ -252,9 +236,9 @@
             btnPlay.classList.remove('playing');
             renderPosition();
         }
+
         btnReset.addEventListener('click', resetPrompter);
 
-        // Espelhar Texto (Inverter para usar com vidro/reflexo)
         btnMirror.addEventListener('click', () => {
             isMirrored = !isMirrored;
             btnMirror.style.background = isMirrored ? '#ffc107' : '#007bff';
@@ -262,7 +246,6 @@
             renderPosition();
         });
 
-        // Inicializa a posição do texto demonstrativo
         window.onload = () => {
             currentScrollY = container.offsetHeight / 2;
             renderPosition();
