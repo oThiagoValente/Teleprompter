@@ -1,272 +1,250 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teleprompter By Tanuvis</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teleprompter + Docs</title>
 
-        body {
-            background-color: #111;
-            color: #fff;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
 
-        /* Painel de Controle Superior */
-        #controls {
-            background-color: #222;
-            padding: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 2px solid #333;
-            z-index: 10;
-        }
+body {
+    background: #111;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* PÁGINAS */
+.page {
+    display: none;
+    height: 100vh;
+    flex-direction: column;
+}
 
-        label {
-            font-size: 14px;
-            color: #aaa;
-        }
+.page.active {
+    display: flex;
+}
 
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+/* ================= PÁGINA 1 ================= */
 
-        button:hover {
-            background-color: #0056b3;
-        }
+#controls {
+    background: #222;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
 
-        button#btnPlay {
-            background-color: #28a745;
-        }
+textarea {
+    width: 300px;
+    height: 40px;
+    background: #333;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 8px;
+    border-radius: 5px;
+    resize: none;
+}
 
-        button#btnPlay.playing {
-            background-color: #dc3545;
-        }
+button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
 
-        input[type="range"] {
-            cursor: pointer;
-        }
+#btnPlay { background: #28a745; color: #fff; }
+#btnReset { background: #007bff; color: #fff; }
+#btnPage2 { background: #ffc107; color: #000; }
 
-        textarea {
-            width: 100%;
-            max-width: 600px;
-            height: 40px;
-            background: #333;
-            color: white;
-            border: 1px solid #444;
-            padding: 8px;
-            border-radius: 4px;
-            resize: none;
-        }
+#teleprompter-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    max-width: 900px;
+    margin: auto;
+}
 
-        /* Área do Teleprompter */
-        #teleprompter-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+#reading-guide {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 80px;
+    transform: translateY(-50%);
+    border-top: 2px dashed rgba(255,255,0,0.4);
+    border-bottom: 2px dashed rgba(255,255,0,0.4);
+    pointer-events: none;
+}
 
-        /* Guia de leitura central (Seta/Linha) */
-        #reading-guide {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            transform: translateY(-50%);
-            border-top: 2px dashed rgba(255, 255, 0, 0.4);
-            border-bottom: 2px dashed rgba(255, 255, 0, 0.4);
-            height: 80px;
-            pointer-events: none;
-            z-index: 5;
-        }
+#prompter-text {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    padding: 0 40px;
+    text-align: center;
+    font-size: 50px;
+    font-weight: bold;
+    white-space: pre-wrap;
+}
 
-        #reading-guide::before {
-            content: "►";
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: yellow;
-            font-size: 24px;
-        }
+/* ================= PÁGINA 2 ================= */
 
-        /* Texto em rolagem */
-        #prompter-text {
-            position: absolute;
-            top: 100%; /* Começa embaixo */
-            left: 0;
-            width: 100%;
-            padding: 0 50px;
-            text-align: center;
-            font-size: 50px;
-            font-weight: bold;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            transform-origin: center;
-            transition: transform 0.1s linear;
-        }
+#page2 {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
 
-        /* Modo Espelhado (Flip Horizontal) */
-        .mirrored {
-            transform: scaleX(-1);
-        }
-    </style>
+.docs-box {
+    width: 100%;
+    max-width: 1000px;
+    height: 90vh;
+    background: #1b1b1b;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.docs-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.docs-textarea {
+    flex: 1;
+    width: 100%;
+    background: #0f0f0f;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 26px;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+}
+
+#btnBack {
+    background: #dc3545;
+    color: #fff;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="controls">
-        <textarea id="txtInput" placeholder="Cole ou digite seu roteiro aqui para começar..."></textarea>
-        
-        <div class="control-group">
-            <button id="btnPlay">INICIAR</button>
-            <button id="btnReset">REINICIAR</button>
-        </div>
+<!-- ================= PÁGINA 1 ================= -->
+<div id="page1" class="page active">
 
-        <div class="control-group">
-            <label for="rngSpeed">Velocidade:</label>
-            <input type="range" id="rngSpeed" min="0.1" max="5" step="0.1" value="1.5">
-        </div>
+<div id="controls">
+    <textarea id="txtInput" placeholder="Cole seu roteiro..."></textarea>
 
-        <div class="control-group">
-            <label for="rngSize">Tamanho da Letra:</label>
-            <input type="range" id="rngSize" min="30" max="90" value="50">
-        </div>
+    <button id="btnPlay">INICIAR</button>
+    <button id="btnReset">REINICIAR</button>
+    <button id="btnPage2">PÁGINA 2</button>
+</div>
 
-        <div class="control-group">
-            <button id="btnMirror">Espelhar (Modo TV)</button>
-        </div>
+<div id="teleprompter-container">
+    <div id="reading-guide"></div>
+    <div id="prompter-text">Cole seu texto aqui...</div>
+</div>
+
+</div>
+
+<!-- ================= PÁGINA 2 ================= -->
+<div id="page2" class="page">
+
+<div class="docs-box">
+
+    <div class="docs-controls">
+        <button id="btnBack">⬅ Voltar</button>
+        <span>Modo Leitura</span>
     </div>
 
-    <div id="teleprompter-container">
-        <div id="reading-guide"></div>
-        <div id="prompter-text">Cole seu texto lá em cima e clique em INICIAR para testar a rolagem do seu novo Teleprompter!</div>
-    </div>
+    <textarea class="docs-textarea" id="docsText"
+        placeholder="Cole seu roteiro aqui e leia sem distrações..."></textarea>
 
-    <script>
-        const txtInput = document.getElementById('txtInput');
-        const prompterText = document.getElementById('prompter-text');
-        const btnPlay = document.getElementById('btnPlay');
-        const btnReset = document.getElementById('btnReset');
-        const btnMirror = document.getElementById('btnMirror');
-        const rngSpeed = document.getElementById('rngSpeed');
-        const rngSize = document.getElementById('rngSize');
-        const container = document.getElementById('teleprompter-container');
+</div>
 
-        let animationFrameId;
-        let isPlaying = false;
-        let currentScrollY = 0;
-        let isMirrored = false;
+</div>
 
-        // Atualiza o texto em tempo real conforme digita/cola
-        txtInput.addEventListener('input', () => {
-            if (txtInput.value.trim() !== "") {
-                prompterText.textContent = txtInput.value;
-            }
-        });
+<script>
 
-        // Altera o tamanho da fonte
-        rngSize.addEventListener('input', () => {
-            prompterText.style.fontSize = `${rngSize.value}px`;
-        });
+const page1 = document.getElementById("page1");
+const page2 = document.getElementById("page2");
 
-        // Função de animação da rolagem
-        function scrollText() {
-            if (!isPlaying) return;
+const txtInput = document.getElementById("txtInput");
+const docsText = document.getElementById("docsText");
+const prompterText = document.getElementById("prompter-text");
 
-            // Multiplicador reduzido para 0.2 para tornar o movimento bem mais suave e lento
-            const speed = parseFloat(rngSpeed.value) * 0.2;
-            currentScrollY -= speed;
+const btnPlay = document.getElementById("btnPlay");
+const btnReset = document.getElementById("btnReset");
+const btnPage2 = document.getElementById("btnPage2");
+const btnBack = document.getElementById("btnBack");
 
-            // Se o texto passar completamente da tela, reinicia
-            if (currentScrollY < -prompterText.offsetHeight) {
-                resetPrompter();
-                return;
-            }
+let isPlaying = false;
+let y = 0;
+let speed = 1.5;
+let anim;
 
-            renderPosition();
-            animationFrameId = requestAnimationFrame(scrollText);
-        }
+// ================= TROCA DE PÁGINA =================
+btnPage2.onclick = () => {
+    page1.classList.remove("active");
+    page2.classList.add("active");
+    docsText.value = txtInput.value;
+};
 
-        function renderPosition() {
-            // Mantém o flip horizontal se o modo espelho estiver ativo
-            const mirrorScale = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
-            prompterText.style.transform = `translateY(${currentScrollY}px) ${mirrorScale}`;
-        }
+btnBack.onclick = () => {
+    page2.classList.remove("active");
+    page1.classList.add("active");
+};
 
-        // Play / Pause
-        btnPlay.addEventListener('click', () => {
-            if (isPlaying) {
-                // Pausar
-                isPlaying = false;
-                cancelAnimationFrame(animationFrameId);
-                btnPlay.textContent = "CONTINUAR";
-                btnPlay.classList.remove('playing');
-            } else {
-                // Iniciar
-                if (currentScrollY === 0) {
-                    // Posiciona o texto inicialmente no centro/fim do container
-                    currentScrollY = container.offsetHeight / 2;
-                }
-                isPlaying = true;
-                btnPlay.textContent = "PAUSAR";
-                btnPlay.classList.add('playing');
-                scrollText();
-            }
-        });
+// ================= TEXTO =================
+txtInput.addEventListener("input", () => {
+    prompterText.textContent = txtInput.value;
+    docsText.value = txtInput.value;
+});
 
-        // Reiniciar
-        function resetPrompter() {
-            isPlaying = false;
-            cancelAnimationFrame(animationFrameId);
-            currentScrollY = container.offsetHeight / 2;
-            btnPlay.textContent = "INICIAR";
-            btnPlay.classList.remove('playing');
-            renderPosition();
-        }
-        btnReset.addEventListener('click', resetPrompter);
+// ================= TELEPROMPTER =================
+function loop() {
+    if (!isPlaying) return;
 
-        // Espelhar Texto (Inverter para usar com vidro/reflexo)
-        btnMirror.addEventListener('click', () => {
-            isMirrored = !isMirrored;
-            btnMirror.style.background = isMirrored ? '#ffc107' : '#007bff';
-            btnMirror.style.color = isMirrored ? '#000' : '#fff';
-            renderPosition();
-        });
+    y -= speed;
+    prompterText.style.transform = `translateY(${y}px)`;
 
-        // Inicializa a posição do texto demonstrativo
-        window.onload = () => {
-            currentScrollY = container.offsetHeight / 2;
-            renderPosition();
-        };
-    </script>
+    anim = requestAnimationFrame(loop);
+}
+
+btnPlay.onclick = () => {
+    isPlaying = !isPlaying;
+
+    if (isPlaying) {
+        btnPlay.textContent = "PAUSAR";
+        loop();
+    } else {
+        btnPlay.textContent = "INICIAR";
+        cancelAnimationFrame(anim);
+    }
+};
+
+btnReset.onclick = () => {
+    y = 0;
+    prompterText.style.transform = `translateY(0px)`;
+};
+
+</script>
+
 </body>
 </html>
