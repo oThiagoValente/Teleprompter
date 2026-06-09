@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levante-se</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a, #111, #1a1a1a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 50px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 25px;
+            box-shadow:
+                0 0 40px rgba(255,255,255,0.05),
+                0 0 80px rgba(0,0,0,0.8);
+            animation: fadeIn 1.2s ease;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #ffffff;
+        }
+
+        p {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            color: #d0d0d0;
+        }
+
+        .highlight {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+        .btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(255,77,77,0.5);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,77,77,0.15), transparent 70%);
+            filter: blur(100px);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <h1>Levante-se.</h1>
+
+        <p>
+            Você já cedeu?<br><br>
+
+            Vai mesmo voltar a ser um
+            <span class="highlight">medroso</span>?
+            <br><br>
+
+            Olhe para si mesmo.
+            Você sabe do que é capaz.
+            Já enfrentou coisas piores.
+            Já caiu antes e continuou andando.
+            <br><br>
+
+            Então recomponha-se.
+            Erga a cabeça.
+            Pare de procurar desculpas.
+            <br><br>
+
+            <span class="highlight">
+                Volte a ser o homem que prometeu ser.
+            </span>
+        </p>
+
+        <button class="btn" onclick="location.reload()">
+            Eu vou continuar.
+        </button>
+    </div>
+
+</body>
+</html>
