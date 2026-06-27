@@ -25,12 +25,21 @@
             background-color: #222;
             padding: 15px;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 15px;
             align-items: center;
             justify-content: center;
             border-bottom: 2px solid #333;
             z-index: 10;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .control-group {
@@ -74,14 +83,16 @@
 
         textarea {
             width: 100%;
-            max-width: 600px;
-            height: 40px;
+            max-width: 900px;
+            height: 120px; /* Começa bem mais alta */
             background: #333;
             color: white;
             border: 1px solid #444;
-            padding: 8px;
+            padding: 10px;
             border-radius: 4px;
-            resize: none;
+            resize: vertical; /* Permite puxar e expandir verticalmente */
+            font-size: 15px;
+            line-height: 1.4;
         }
 
         #teleprompter-container {
@@ -141,23 +152,25 @@
     <div id="controls">
         <textarea id="txtInput" placeholder="Cole ou digite seu roteiro aqui para começar..."></textarea>
         
-        <div class="control-group">
-            <button id="btnPlay">INICIAR</button>
-            <button id="btnReset">REINICIAR</button>
-        </div>
+        <div class="controls-row">
+            <div class="control-group">
+                <button id="btnPlay">INICIAR</button>
+                <button id="btnReset">REINICIAR</button>
+            </div>
 
-        <div class="control-group">
-            <label for="rngSpeed">Velocidade:</label>
-            <input type="range" id="rngSpeed" min="0.05" max="5" step="0.1" value="1.5">
-        </div>
+            <div class="control-group">
+                <label for="rngSpeed">Velocidade:</label>
+                <input type="range" id="rngSpeed" min="0.05" max="5" step="0.1" value="1.5">
+            </div>
 
-        <div class="control-group">
-            <label for="rngSize">Tamanho da Letra:</label>
-            <input type="range" id="rngSize" min="30" max="90" value="50">
-        </div>
+            <div class="control-group">
+                <label for="rngSize">Tamanho da Letra:</label>
+                <input type="range" id="rngSize" min="30" max="90" value="50">
+            </div>
 
-        <div class="control-group">
-            <button id="btnMirror">Espelhar (Modo TV)</button>
+            <div class="control-group">
+                <button id="btnMirror">Espelhar (Modo TV)</button>
+            </div>
         </div>
     </div>
 
